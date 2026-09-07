@@ -39,11 +39,17 @@ Example: ألطريق المؤدي إلى طريق الملك فهد يحتاج 
 Why it matters: Different character forms can create inconsistent text and affect NLP processing.
 Decision: normalize Unicode forms.
 ## Lab 2 — Parameter audit
-| Checkpoint | Total params | Embeddings % | Other notes |
-|---|---:|---:|---|
-| mBERT | | | |
-| CAMeLBERT | | | |
 
+| Bucket | mBERT | mBERT % | CAMeLBERT | CAMeLBERT % |
+|---|---:|---:|---:|---:|
+| Total | 177,853,440 | 100% | 109,081,344 | 100% |
+| Embeddings | 92,208,384 | 51.85% | 23,436,288 | 21.49% |
+| Attention | 28,348,416 | 15.94% | 28,348,416 | 25.99% |
+| FFN | 56,669,184 | 31.86% | 56,669,184 | 51.95% |
+| Norms | 36,864 | 0.02% | 36,864 | 0.03% |
+| Pooler | 590,592 | 0.33% | 590,592 | 0.54% |
+
+Why is the embedding share different? mBERT covers 104 languages so it needs a much larger vocabulary, which inflates its embedding table; CAMeLBERT is Arabic-only with a smaller vocabulary, so the same-sized attention/FFN layers make up a much bigger share of a smaller total.
 ## Lab 4 — Dialect audit
 - Distribution:
 - One-sentence implication for MSA-only evaluation:
