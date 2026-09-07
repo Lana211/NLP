@@ -50,6 +50,11 @@ Decision: normalize Unicode forms.
 | Pooler | 590,592 | 0.33% | 590,592 | 0.54% |
 
 Why is the embedding share different? mBERT covers 104 languages so it needs a much larger vocabulary, which inflates its embedding table; CAMeLBERT is Arabic-only with a smaller vocabulary, so the same-sized attention/FFN layers make up a much bigger share of a smaller total.
+## Lab 2 — Attention diagnostics
+- Adjacency head: layer 12 (last), head 8 — avg local attention mass 0.877 (attends mostly to itself + immediate neighbours, n-gram-like behaviour).
+- [SEP] sink: average attention mass directed at [SEP] across all layers/heads = 0.129 (~13%), even though [SEP] carries no content — known BERT attention-sink pattern.
+- Pad leakage: with a correct attention_mask, pad attention mass = 0.0000. Without any mask (all-ones), pad mass = 0.1544 — 15.44% of total attention wasted on [PAD] tokens, mostly hurting the shorter English example.
+- Takeaway: always pass attention_mask at inference/training; skipping it silently degrades short sequences the most.
 ## Lab 4 — Dialect audit
 - Distribution:
 - One-sentence implication for MSA-only evaluation:
