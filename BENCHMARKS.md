@@ -26,9 +26,11 @@
 | TF-IDF + LinearSVC | macro-F1 | 1.0000* | 1.0000* | 0.36s |
 | Topic classifier (XLM-R) | macro-F1 | 1.0000* | 1.0000* | ~ (Colab T4 GPU) |
 | NER (XLM-R) | entity-F1 | 1.0000* | 1.0000* | ~124s (Colab T4 GPU) |
-| QA | span/null smoke | | | |
+| QA (deepset/xlm-roberta-base-squad2) | span/null smoke | 12/12 answerable | 0/0 unanswerable | inference only, no training |
 
-\* All three supervised models hit the ceiling (1.0000), consistent with the templated nature of this synthetic corpus (see NOTES.md). NER target was ≥0.80; achieved result exceeds it, though the perfect score again reflects limited data diversity rather than a fully realistic evaluation.
+\* All three supervised models (TF-IDF baseline, topic classifier, NER) hit the ceiling (1.0000), consistent with the templated nature of this synthetic corpus (see NOTES.md). The topic classifier's "+0.08 over baseline" target and NER's "≥0.80" target are both technically met/unreachable-by-definition since the baseline itself is already at 1.0 for topic classification, and NER exceeds its 0.80 target comfortably.
+
+QA note: the supplied `qa_smoke_set.json` contains 12 answerable questions and 0 unanswerable ones, unlike the lab's stated 9/3 split — no fine-tuning was needed for this step (used the pretrained deepset/xlm-roberta-base-squad2 checkpoint directly with our best_span() post-processing).
 ## Lab 4 — Arabic model bake-off
 | Checkpoint | macro-F1 all | Gulf | MSA | AR fertility |
 |---|---:|---:|---:|---:|
