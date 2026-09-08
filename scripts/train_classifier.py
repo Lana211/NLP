@@ -1,6 +1,19 @@
-"""Lab 3A starter: fine-tune the Bayan topic classifier."""
 import argparse
+import json
 from pathlib import Path
+
+import numpy as np
+from sklearn.metrics import f1_score
+from transformers import (
+    AutoModelForSequenceClassification,
+    AutoTokenizer,
+    Trainer,
+    TrainingArguments,
+)
+
+from bayan.models.data import build_topic_dataset
+
+CHECKPOINT = "xlm-roberta-base"
 
 
 def parse_args():
@@ -18,11 +31,65 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # TODO(Lab 3A): load grouped dataset, tokenizer/checkpoint from Lab 1 decision,
-    # fine-tune, evaluate and save a re-runnable artefact into output_dir.
-    raise NotImplementedError(
-        f"Complete Lab 3A classifier training; output directory: {output_dir}"
+    ds = build_topic_dataset()
+
+    labels = sorted(set(ds["train"]["topic"]))
+    label2id = {label: i for i, label in enumerate(labels)}
+    id2label = {i: label for label, i in label2id.items()}
+
+    tokenizer = AutoTokenizer.from_pretrained(CHECKPOINT)
+
+    def preprocess(batch):
+        encoded = tokenizer(batch["text"], truncation=True, padding="max_length", max_length=64)
+        encoded["labels"] = [label2id[t] for t in batch["topic"]]
+        return encoded
+
+    tokenized = ds.map(preprocess, batched=True)
+    tokenized.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
+
+    model = AutoModelForSequenceClassification.from_pretrained(
+        CHECKPOINT, num_labels=len(labels), id2label=id2label, label2id=label2id
     )
+
+    def compute_metrics(eval_pred):
+        logits, labels_ = eval_pred
+        preds = np.argmax(logits, axis=-1)
+        return {"macro_f1": f1_score(labels_, preds, average="macro")}
+
+    training_args = TrainingArguments(
+        output_dir=str(output_dir / "checkpoints"),
+        num_train_epochs=3,
+        per_device_train_batch_size=16,
+        per_device_eval_batch_size=32,
+        learning_rate=2e-5,
+        eval_strategy="epoch",
+        save_strategy="no",
+        logging_steps=50,
+        report_to=[],
+    )
+
+    trainer = Trainer(
+        model=model,
+        args=training_args,
+        train_dataset=tokenized["train"],
+        eval_dataset=tokenized["validation"],
+        compute_metrics=compute_metrics,
+    )
+
+    trainer.train()
+
+    val_metrics = trainer.evaluate(tokenized["validation"])
+    test_metrics = trainer.evaluate(tokenized["test"], metric_key_prefix="test")
+
+    print(f"\nValidation macro-F1: {val_metrics['eval_macro_f1']:.4f}")
+    print(f"Frozen test macro-F1: {test_metrics['test_macro_f1']:.4f}")
+
+    model.save_pretrained(output_dir)
+    tokenizer.save_pretrained(output_dir)
+    with open(output_dir / "metrics.json", "w") as f:
+        json.dump({"validation": val_metrics, "test": test_metrics}, f, indent=2)
+
+    print(f"\nSaved re-runnable artefact to: {output_dir}")
 
 
 if __name__ == "__main__":
