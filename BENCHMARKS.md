@@ -25,11 +25,10 @@
 |---|---|---:|---:|---:|
 | TF-IDF + LinearSVC | macro-F1 | 1.0000* | 1.0000* | 0.36s |
 | Topic classifier (XLM-R) | macro-F1 | 1.0000* | 1.0000* | ~ (Colab T4 GPU) |
-| NER | entity-F1 | | | |
+| NER (XLM-R) | entity-F1 | 1.0000* | 1.0000* | ~124s (Colab T4 GPU) |
 | QA | span/null smoke | | | |
 
-\* Both baseline and fine-tuned transformer hit the ceiling (1.0000) because the synthetic corpus is highly templated (near-deterministic topic vocabulary — see NOTES.md). Since the baseline is already at the maximum possible score, the "+0.08 macro-F1 over baseline" target is mathematically unreachable here, not a modeling shortcoming.
-
+\* All three supervised models hit the ceiling (1.0000), consistent with the templated nature of this synthetic corpus (see NOTES.md). NER target was ≥0.80; achieved result exceeds it, though the perfect score again reflects limited data diversity rather than a fully realistic evaluation.
 ## Lab 4 — Arabic model bake-off
 | Checkpoint | macro-F1 all | Gulf | MSA | AR fertility |
 |---|---:|---:|---:|---:|
