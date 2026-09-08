@@ -9,6 +9,7 @@ from transformers import (
     AutoTokenizer,
     Trainer,
     TrainingArguments,
+    default_data_collator,
 )
 
 from bayan.models.data import build_topic_dataset
@@ -44,8 +45,8 @@ def main():
         encoded["labels"] = [label2id[t] for t in batch["topic"]]
         return encoded
 
-    tokenized = ds.map(preprocess, batched=True)
-    tokenized.set_format(type="torch", columns=["input_ids", "attention_mask", "labels"])
+    columns_to_remove = [c for c in ds["train"].column_names if c not in ("input_ids", "attention_mask", "labels")]
+    tokenized = ds.map(preprocess, batched=True, remove_columns=columns_to_remove)
 
     model = AutoModelForSequenceClassification.from_pretrained(
         CHECKPOINT, num_labels=len(labels), id2label=id2label, label2id=label2id
@@ -73,6 +74,7 @@ def main():
         args=training_args,
         train_dataset=tokenized["train"],
         eval_dataset=tokenized["validation"],
+        data_collator=default_data_collator,
         compute_metrics=compute_metrics,
     )
 
