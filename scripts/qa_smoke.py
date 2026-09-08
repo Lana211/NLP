@@ -1,4 +1,6 @@
 import json
+import re
+import string
 from pathlib import Path
 
 import torch
@@ -9,6 +11,13 @@ from bayan.models.qa import best_span
 CHECKPOINT = "deepset/xlm-roberta-base-squad2"
 SMOKE_SET = Path("data/eval/qa_smoke_set.json")
 NULL_THRESHOLD = 0.0
+
+
+def normalize_answer(text):
+    text = text.lower()
+    text = re.sub(r"\b(a|an|the)\b", " ", text)
+    text = "".join(ch for ch in text if ch not in string.punctuation)
+    return " ".join(text.split())
 
 
 def load_examples(path):
@@ -84,7 +93,7 @@ def main():
             ok = predicted_text is None
             correct_null += int(ok)
         else:
-            ok = predicted_text is not None and predicted_text.strip() == ex["gold_text"].strip()
+            ok = predicted_text is not None and normalize_answer(predicted_text) == normalize_answer(ex["gold_text"])
             correct_answerable += int(ok)
 
         status = "OK" if ok else "MISS"
