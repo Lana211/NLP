@@ -55,6 +55,9 @@ Why is the embedding share different? mBERT covers 104 languages so it needs a m
 - [SEP] sink: average attention mass directed at [SEP] across all layers/heads = 0.129 (~13%), even though [SEP] carries no content — known BERT attention-sink pattern.
 - Pad leakage: with a correct attention_mask, pad attention mass = 0.0000. Without any mask (all-ones), pad mass = 0.1544 — 15.44% of total attention wasted on [PAD] tokens, mostly hurting the shorter English example.
 - Takeaway: always pass attention_mask at inference/training; skipping it silently degrades short sequences the most.
+
+- ## Lab 3A — Fine-tuned classifier (XLM-R)
+- macro-F1 = 1.0000 on both validation and frozen test — same ceiling effect as the TF-IDF baseline (see Lab 3A baseline note); target of "+0.08 over baseline" is unreachable since baseline is already at 1.0.
 ## Lab 4 — Dialect audit
 - Distribution:
 - One-sentence implication for MSA-only evaluation:
