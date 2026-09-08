@@ -23,10 +23,12 @@
 ## Lab 3 — Models
 | Model | Metric | Validation | Frozen test | Train time |
 |---|---|---:|---:|---:|
-| TF-IDF + LinearSVC | macro-F1 | | | |
+| TF-IDF + LinearSVC | macro-F1 | 1.0000* | 1.0000* | 0.36s |
 | Topic classifier | macro-F1 | | | |
 | NER | entity-F1 | | | |
 | QA | span/null smoke | | | |
+
+\* Perfect score is inflated by a highly templated synthetic corpus (only 3004 unique texts among 8400 train rows) — topic vocabulary is near-deterministic per class, even on completely unseen text. Not indicative of real-world performance; see NOTES.md.
 
 ## Lab 4 — Arabic model bake-off
 | Checkpoint | macro-F1 all | Gulf | MSA | AR fertility |
