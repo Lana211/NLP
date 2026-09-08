@@ -1,29 +1,34 @@
-"""Lab 3B starter: fine-tune token classification with correct alignment."""
 import argparse
+import json
 from pathlib import Path
 
+import numpy as np
+from datasets import Dataset, DatasetDict
+from seqeval.metrics import f1_score as seqeval_f1
+from transformers import (
+    AutoModelForTokenClassification,
+    AutoTokenizer,
+    Trainer,
+    TrainingArguments,
+    default_data_collator,
+)
 
-def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--output-dir",
-        default="artifacts/ner",
-        help="Where to save the trained NER artefact (local path or mounted Drive path).",
-    )
-    return parser.parse_args()
+from bayan.models.ner import align_labels
 
-
-def main():
-    args = parse_args()
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # TODO(Lab 3B): parse CoNLL data, align labels, train, evaluate with seqeval,
-    # and save the trained artefact into output_dir.
-    raise NotImplementedError(
-        f"Complete Lab 3B NER training; output directory: {output_dir}"
-    )
+CHECKPOINT = "xlm-roberta-base"
+CONLL_PATH = Path("data/models/bayan_ner.conll")
+MAX_LENGTH = 64
 
 
-if __name__ == "__main__":
-    main()
+def read_conll(path):
+    sentences = []
+    words, tags = [], []
+    with path.open(encoding="utf-8-sig") as f:
+        for line in f:
+            line = line.rstrip("\n")
+            if not line.strip():
+                if words:
+                    sentences.append((words, tags))
+                    words, tags = [], []
+                continue
+            word, tag = line.split("\t")
