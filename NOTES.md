@@ -58,6 +58,10 @@ Why is the embedding share different? mBERT covers 104 languages so it needs a m
 
 - ## Lab 3A — Fine-tuned classifier (XLM-R)
 - macro-F1 = 1.0000 on both validation and frozen test — same ceiling effect as the TF-IDF baseline (see Lab 3A baseline note); target of "+0.08 over baseline" is unreachable since baseline is already at 1.0.
+
+- ## Lab 3B — NER fine-tuning
+- entity-F1 = 1.0000 on both validation and frozen test (target was ≥0.80) — training loss dropped to near-zero within the first epoch, consistent with the templated synthetic data pattern already noted in Lab 3A.
+- 
 ## Lab 4 — Dialect audit
 - Distribution:
 - One-sentence implication for MSA-only evaluation:
