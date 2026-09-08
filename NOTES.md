@@ -56,11 +56,20 @@ Why is the embedding share different? mBERT covers 104 languages so it needs a m
 - Pad leakage: with a correct attention_mask, pad attention mass = 0.0000. Without any mask (all-ones), pad mass = 0.1544 — 15.44% of total attention wasted on [PAD] tokens, mostly hurting the shorter English example.
 - Takeaway: always pass attention_mask at inference/training; skipping it silently degrades short sequences the most.
 
-- ## Lab 3A — Fine-tuned classifier (XLM-R)
-- macro-F1 = 1.0000 on both validation and frozen test — same ceiling effect as the TF-IDF baseline (see Lab 3A baseline note); target of "+0.08 over baseline" is unreachable since baseline is already at 1.0.
+- ## Lab 3A — TF-IDF baseline
+- macro-F1 = 1.0000 on both validation and test — inflated due to templated synthetic data (near-deterministic vocabulary per topic), not real generalization. Only 3004 unique texts out of 8400 train rows; even the 218 completely unseen test rows scored 1.0000.
 
-- ## Lab 3B — NER fine-tuning
+## Lab 3A — Fine-tuned classifier (XLM-R)
+- macro-F1 = 1.0000 on both validation and frozen test — same ceiling effect as the TF-IDF baseline. Target of "+0.08 over baseline" is unreachable since baseline is already at 1.0.
+
+## Lab 3B — NER fine-tuning
 - entity-F1 = 1.0000 on both validation and frozen test (target was ≥0.80) — training loss dropped to near-zero within the first epoch, consistent with the templated synthetic data pattern already noted in Lab 3A.
+
+## Lab 3B — QA smoke test
+- Used pretrained deepset/xlm-roberta-base-squad2 (no fine-tuning needed) + our best_span() post-processing.
+- Data mismatch found: data/eval/qa_smoke_set.json has 12 answerable questions and 0 unanswerable ones, not the 9/3 split described in the lab brief.
+- Initial run: 8/12 correct — 4 misses were boundary/article mismatches (model predicted "the Bayan portal" vs gold "Bayan portal"), not real comprehension errors.
+- After applying standard SQuAD-style answer normalization (lowercase, strip articles a/an/the, strip punctuation), result: 12/12 answerable correct. 0/0 unanswerable (none present in the supplied set) — null-handling path already verified separately by unit tests in Step 3.
 - 
 ## Lab 4 — Dialect audit
 - Distribution:
