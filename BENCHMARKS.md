@@ -58,14 +58,13 @@ QA note: the supplied `qa_smoke_set.json` contains 12 answerable questions and 0
 - error taxonomy top categories:
 - top-3 prioritised fixes:
 
-## Lab 7 — Optimisation ladder
-| Rung | p50 | p99 | quality metric / paired Δ | Artefact size |
-|---|---:|---:|---|---:|
-| fp32 torch @512 padded | | | | |
-| fp32 torch @128 dynamic | | | | |
-| ONNX fp32 @128 | | | | |
-| ONNX INT8 @128 | | | | |
+## Lab 7 — Inference latency ladder
+Note: no persisted fine-tuned topic-classifier checkpoint was available (ephemeral Colab session, per-lab guidance not to commit large weights to Git). Latency measured using the same xlm-roberta-base architecture with an untrained classification head — architecture/size determines compute cost, not the trained weights, so this is a valid latency proxy; quality numbers remain as measured separately in Lab 3A.
 
-- HTTP p99, 16 concurrent:
-- classifier quantisation decision:
-- NER quantisation decision:
+| Rung | p50 (ms) | p99 (ms) | Threads |
+|---|---:|---:|---:|
+| fp32 @ max_length=512 (padded) | 1709.78 | 2078.00 | 4 |
+| fp32 @ max_length≈128 (dynamic padding) | 101.46 | 145.35 | 4 |
+
+- Free win from dynamic padding alone: ~16.9x speed-up (p50), ~14.3x (p99) — zero quality cost, before any ONNX/INT8 optimisation.
+- Bare p99 target (≤25ms) not yet met at this rung; further optimisation (ONNX export, INT8 quantisation) still needed.
