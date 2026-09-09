@@ -72,5 +72,5 @@ Why is the embedding share different? mBERT covers 104 languages so it needs a m
 - After applying standard SQuAD-style answer normalization (lowercase, strip articles a/an/the, strip punctuation), result: 12/12 answerable correct. 0/0 unanswerable (none present in the supplied set) — null-handling path already verified separately by unit tests in Step 3.
 - 
 ## Lab 4 — Dialect audit
-- Distribution:
-- One-sentence implication for MSA-only evaluation:
+- Distribution: Gulf = 4800 rows (66.7%), MSA = 2400 rows (33.3%) — out of 7200 Arabic rows total.
+- Implication: two-thirds of real Arabic traffic is Gulf dialect, not MSA — evaluating only on MSA would overstate real-world performance and hide weaknesses on the majority of actual citizen feedback.
