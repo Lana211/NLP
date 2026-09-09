@@ -34,5 +34,21 @@ def normalize_arabic(text: str, profile: ArabicProfile) -> str:
     return text
 
 
+from camel_tools.disambig.mle import MLEDisambiguator
+from camel_tools.tokenizers.morphological import MorphologicalTokenizer
+
+_tokenizer = None
+
+
+def _get_tokenizer():
+    global _tokenizer
+    if _tokenizer is None:
+        mle = MLEDisambiguator.pretrained()
+        _tokenizer = MorphologicalTokenizer(disambiguator=mle, scheme="d3tok", split=True)
+    return _tokenizer
+
+
 def segment(text: str) -> list[str]:
-    raise NotImplementedError
+    tokenizer = _get_tokenizer()
+    words = text.split()
+    return tokenizer.tokenize(words)
